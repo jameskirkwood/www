@@ -449,7 +449,7 @@
             return value;
         }
         get value() {
-            return JSON.parse(localStorage.getItem(this.key) || 'undefined');
+            return JSON.parse(localStorage.getItem(this.key) || 'null');
         }
     }
 
@@ -554,8 +554,8 @@
                 this.update();
                 this.save();
             }
-            if (!this.entries.length) this.start(this.activities[0]);
             this.details = new EntryDetails(this);
+            if (!this.entries.length) this.start(this.activities[0]);
             this.update();
             $('#add-activity').click(e => {
                 this.activities.insert(this.newActivity(''), { focus: true });
