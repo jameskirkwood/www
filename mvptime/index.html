@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <style>
+        main > * {
+            margin: 1rem 0;
+        }
+        .navbar {
+            border-bottom: 2px solid rgb(40, 210, 255);
+        }
+        .container-x {
+            padding: 0 14px !important;
+        }
+        .activity, .entry {
+            border-radius: 4pt;
+            user-select: none;
+        }
+        .activity-head > input {
+            border-radius: 2pt;
+        }
+        .activity-head {
+            display: flex;
+            padding: 2pt;
+            border-radius: 4pt;
+        }
+        .activity-head:hover, .entry:hover {
+            background-color: rgba(40, 210, 255, 0.1);
+        }
+        .activity-text {
+            flex-grow: 1;
+            border: none;
+        }
+        .activity-body {
+            margin-left: 1em;
+        }
+        .entry {
+            display: flex;
+            padding: 3pt;
+            border-radius: 4pt;
+        }
+        .btn-x {
+            border-radius: 1em;
+            border: none;
+            font-weight: bold;
+            background: none;
+            color: grey;
+        }
+        .btn-x:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: black;
+        }
+        .col-x {
+            width: 7em;
+            display: inline-block;
+        }
+        .invalid {
+            color: red;
+        }
+        .active {
+            background-color: rgba(40, 210, 255, 0.2);
+            box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
+        }
+        .selected {
+            box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
+        }
+        .path:not(:last-child):after {
+            content: ' » ';
+            color: #aaa;
+        }
+        .details-header {
+            font-weight: bold;
+            display: inline-block;
+            width: 6em;
+        }
+        input {
+            border: none;
+        }
+        input:not(:focus) {
+            background: none;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-secondary navbar-dark">
+    <div class='container container-x'>
+        <a class="navbar-brand" href="#">
+            <svg width="1.5em" height="1.5em" version="1.1" viewBox="0 0 24.87 24.74" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(-64.34 -101.3)">
+                    <path transform="scale(.2646)" d="m244 423a46.9 46.9 0 0 0-0.459 6.549 46.9 46.9 0 0 0 46.9 46.9 46.9 46.9 0 0 0 46.72-42.85z" fill="#fb0000"/>
+                    <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 4.494 9.557l15.76-19.17a12.41 12.41 0 0 0-7.85-2.799z" fill="#fbee00"/>
+                    <path d="m76.75 101.3a12.41 12.41 0 0 0-5.536 1.303l12.04 21.67a12.41 12.41 0 0 0 5.901-10.57 12.41 12.41 0 0 0-12.41-12.41z" fill="#5200ff"/>
+                    <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 0.4852 3.437l23.78-7.096a12.41 12.41 0 0 0-11.86-8.749z" fill="#0fe300"/>
+                </g>
+            </svg>
+            MVP<em>time</em>
+        </a>
+    </div>
+</nav>
+<main class=container>
+    <div class=card>
+        <div class='card-header'>
+            Activities
+            <button id=add-activity class='btn-x float-right' tabindex='-1'>✳️</button>
+        </div>
+        <div id=activities class=card-body></div>
+    </div>
+    <div class=card>
+        <div class='card-header'>
+            Entries
+            <button id=add-entry class='btn-x float-right' tabindex='-1'>⏱</button>
+        </div>
+        <div id=entries class=card-body></div>
+    </div>
+    <div id=details class=card>
+        <div class='card-header'>
+            Entry Details
+            <button id=close-details class='btn-x float-right' tabindex='-1'>✖️</button>
+        </div>
+        <div id=details-body class=card-body></div>
+    </div>
+</main>
+<script>
+    
+    class ActivityList extends Array {
+        constructor(app, container, element, items) {
+            super();
+            this.app = app;
+            this.container = container;
+            this.$ = element;
+            items ||= [];
+            items.forEach(e => this.insert(app.newActivity(...e)));
+        }
+        insert(movedActivity, options) {
+            options ||= {};
+            const position = this.indexOf(options.after) + 1;
+            if (position === 0) {
+                this.$.append(movedActivity.$);
+                this[this.length] = movedActivity;
+            }
+            else {
+                this[position - 1].$.after(movedActivity.$);
+                this.splice(position, 0, movedActivity);
+            }
+            movedActivity.container = this;
+            if (options.focus) movedActivity.$text.focus();
+        }
+        insert(item, options) {
+            options ||= {};
+            const position = this.indexOf(options.after) + 1;
+            if (position === 0) {
+                this.$.append(item.$);
+                this[this.length] = item;
+            }
+            else {
+                this[position - 1].$.after(item.$);
+                this.splice(position, 0, item);
+            }
+            item.container = this;
+            if (options.focus) item.focus();
+            if (this.oninsert) this.oninsert(item);
+        }
+        remove(activity) {
+            const position = this.indexOf(activity);
+            if (position >= 0) {
+                this.splice(position, 1);
+                activity.$.detach();
+                activity.container = null;
+                this.app.update();
+            }
+        }
+        snapshot(newid) {
+            return this.map(e => e.snapshot(newid));
+        }
+        update() {
+            this.forEach(e => e.update());
+        }
+        find(id) {
+            for (const activity of this) {
+                const found = activity.find(id);
+                if (found) return found;
+            }
+        }
+        predecessor(initial, needle) {
+            for (const e of this) {
+                const [last, found] = e.predecessor(initial, needle);
+                console.log(last, found);
+                if (found) return [last, true];
+                initial = last;
+            }
+            return [initial, false];
+        }
+    }
+
+    class Activity {
+        constructor(app, name, items, id) {
+            this.app = app;
+            this.id = id;
+            this.$body = $('<div class=activity-body>');
+            this.list = new ActivityList(app, this, this.$body, items);
+            this.$text = $('<input class=activity-text>')
+                .attr('placeholder', 'Activity Name')
+                .val(name)
+                .on('input', () => this.nameChanged())
+                .keydown(e => {
+                    if (e.code == 'Enter') {
+                        const activity = this.app.newActivity();
+                        const list = e.shiftKey ? this.list : this.container;
+                        const after = e.shiftKey ? null : this;
+                        list.insert(activity, { after, focus: true });
+                        this.app.save();
+                    }
+                    else if (e.code == 'Backspace' && this.name == '') {
+                        const [predecessor, found] = this.app.activities.predecessor(null, this);
+                        if (found && predecessor) predecessor.focus();
+                        this.remove();
+                        this.app.save();
+                        e.preventDefault();
+                    }
+                    e.stopPropagation();
+                });
+            this.$radio = $('<input type=radio class=btn-x tabindex="-1">')
+                .click(e => {
+                    this.app.selectActivity(this);
+                    e.stopPropagation();
+                });
+            this.$ = $('<div class=activity>')
+                .append($('<div class=activity-head>')
+                    .append(this.$text)
+                    .append(this.$radio)
+                    .append(this.$time = $('<span class="col-x text-center">'))
+                    .append($('<button class=btn-x tabindex="-1">⏱</>')
+                        .click(e => {
+                            this.app.start(this);
+                            e.stopPropagation();
+                        })
+                    )
+                    .append($('<button class=btn-x tabindex="-1">✳️</>')
+                        .click(e => {
+                            this.list.insert(this.app.newActivity(), {
+                                focus: true
+                            });
+                            this.app.save();
+                            e.stopPropagation();
+                        })
+                    )
+                    .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                        .click(e => {
+                            this.remove();
+                            this.app.save();
+                            e.stopPropagation();
+                        })
+                    )
+                )
+                .append(this.$body);
+        }
+        get name() {
+            return this.$text.val();
+        }
+        nameChanged() {
+            this.app.update();
+            this.app.save();
+        }
+        path() {
+            if (this.container && this.container.container && this.container.container.path) {
+                return [...this.container.container.path(), this];
+            }
+            return [this];
+        }
+        time() {
+            return this.app.entries
+                .filter(e => e.activity)
+                .filter(e => e.activity.descendsFrom(this))
+                .map(e => e.duration)
+                .filter(e => typeof e == 'number')
+                .reduce((a, e) => a + e, 0);
+        }
+        descendsFrom(activity) {
+            if (activity === this) return true;
+            if (this.container) {
+                return this.container.container.descendsFrom(activity);
+            }
+            else return false;
+        }
+        snapshot(newid) {
+            return [this.name, this.list.snapshot(newid), this.id = newid()];
+        }
+        update() {
+            const time = this.time();
+            const timeText = new Date(time).toISOString().substr(11, 8);
+            this.$time.text(time ? timeText : '');
+            if (this.app.activeEntry) {
+                this.$.toggleClass('active', this === this.app.activeEntry.activity);
+            }
+            else this.$.removeClass('active');
+            if (this.app.selectedEntry) {
+                const selected = this === this.app.selectedEntry.activity;
+                if (selected) this.$radio.prop('checked', true);
+                else this.$radio.prop('checked', false);
+                this.$radio.show();
+            }
+            else {
+                this.$radio.hide();
+            }
+            this.list.update();
+        }
+        find(id) {
+            if (this.id == id) return this;
+            return this.list.find(id);
+        }
+        focus() {
+            this.$text.focus();
+        }
+        predecessor(initial, needle) {
+            if (this === needle) return [initial, true];
+            return this.list.predecessor(this, needle);
+        }
+        remove() {
+            this.list.forEach(e => e.remove());
+            this.container.remove(this);
+        }
+    }
+    
+    class ListComponent extends Array {
+        constructor(container, options) {
+            super();
+            options ||= {};
+            this.container = container;
+            this.$ = options.element || $('<div>');
+            this.onremove = options.onremove;
+            if (options.items) options.items.forEach(e => this.insert(e));
+            this.oninsert = options.oninsert;
+        }
+        insert(item, options) {
+            options ||= {};
+            const position = this.indexOf(options.after) + 1;
+            if (position === 0) {
+                this.$.append(item.$);
+                this[this.length] = item;
+            }
+            else {
+                this[position - 1].$.after(item.$);
+                this.splice(position, 0, item);
+            }
+            item.container = this;
+            if (options.focus) item.focus();
+            if (this.oninsert) this.oninsert(item);
+        }
+        remove(item) {
+            const position = this.indexOf(item);
+            if (position >= 0) {
+                this.splice(position, 1);
+                item.$.remove();
+                item.container = null;
+                if (this.onremove) this.onremove(item);
+            }
+        }
+        snapshot() {
+            return this.map(e => e.snapshot());
+        }
+    }
+
+    class Entry {
+        constructor(app, activity, time) {
+            this.app = app;
+            this.activity = typeof activity == 'string'
+                ? app.newActivity(activity) : activity;
+            this.time = time || Date.now();
+            this.$ = $('<div class=entry>')
+                .append(this.$activity = $('<span class=flex-grow-1>'))
+                .append(this.$duration = $('<span>'))
+                .append(this.$started = $('<span class="col-x text-center">'))
+                .append($('<span class="col-x text-right">')
+                    .append(this.$insert = $('<button class=btn-x tabindex="-1">✳</>')
+                        .click(e => {
+                            this.app.activities.insert(this.activity, { focus: true });
+                            this.app.selectEntry(this);
+                            e.stopPropagation();
+                        })
+                    )
+                    .append($('<button class=btn-x tabindex="-1">➗</>')
+                        .click(e => {
+                            const time = this.later ? this.later.time : Date.now();
+                            const entry = new Entry(this.app, this.activity, time);
+                            this.app.entries.insert(entry, { after: this });
+                            this.app.selectEntry(entry);
+                            e.stopPropagation();
+                        })
+                    )
+                    .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                        .click(e => {
+                            this.container.remove(this);
+                            e.stopPropagation();
+                        })
+                    )
+                )
+                .click(e => {
+                    this.app.selectEntry(this.app.selectedEntry === this ? null : this);
+                    e.stopPropagation();
+                });
+        }
+        update() {
+            this.$activity.text(this.activity.name);
+            this.$activity.toggleClass('invalid', this.activity.container == null);
+            this.$started.text(this.timeText());
+            this.$duration.text(this.durationText());
+            this.$.toggleClass('selected', this === this.app.selectedEntry);
+            this.$insert.toggle(this.activity.container == null);
+            return this.$;
+        }
+        get duration() {
+            if (this.later) return this.later.time - this.time;
+        }
+        noticeFollowedBy(entry) {
+            this.later = entry;
+            entry.earlier = this;
+            if (entry.time < this.time) entry.time = this.time;
+        }
+        snapshot() {
+            if (this.activity.container) return [this.activity.id, this.time];
+            return [this.activity.name, this.time]
+        }
+        timeText() {
+            return new Date(this.time).toLocaleTimeString();
+        }
+        durationText() {
+            if (!this.later) return '(ongoing)';
+            return new Date(this.duration).toISOString().substr(11, 5);
+        }
+        minTime() {
+            if (this.earlier) return this.earlier.time;
+            if (this.later) return this.time - this.duration;
+            return this.time - 3600000;
+        }
+        maxTime() {
+            if (this.later) return this.later.time;
+            if (this.earlier) return this.time + this.earlier.duration;
+            return this.time + 3600000;
+        }
+    }
+    
+    class StorageKey {
+        constructor(key, initial) {
+            this.key = key;
+        }
+        set value(value) {
+            localStorage.setItem(this.key, JSON.stringify(value));
+            return value;
+        }
+        get value() {
+            return JSON.parse(localStorage.getItem(this.key) || 'undefined');
+        }
+    }
+
+    class EntryDetails {
+        constructor(app, entry) {
+            this.app = app;
+            this.entry = entry;
+            this.$ = $('#details');
+            if (!entry) return;
+            this.$body = $('#details-body');
+            this.$time = $('<input type=range class=flex-grow-1>')
+                .on('input', () => {
+                    this.entry.time = +this.$time.val();
+                    this.app.update();
+                    this.updateDurationInput();
+                })
+                .on('change', () => {
+                    this.app.save();
+                });
+            this.updateTimeInput();
+            if (entry.later) {
+                this.$duration = $('<input type=range class=flex-grow-1>')
+                    .on('input', () => {
+                        this.entry.later.time = this.entry.time + +this.$duration.val();
+                        this.app.update();
+                        this.updateTimeInput();
+                    })
+                    .on('change', () => {
+                        this.app.save();
+                    });
+                this.updateDurationInput();
+            }
+            else this.$duration = null;
+            this.$body.html('')
+                .append($('<div>')
+                    .append('<span class=details-header>Activity:</span>')
+                    .append(this.$activity = $('<span>'))
+                )
+                .append($('<div class=d-flex>')
+                    .append('<span class=details-header>Started:</span>')
+                    .append(this.$timeDisplay = $('<span class=col-x>'))
+                    .append(this.$time)
+                )
+                .append($('<div class=d-flex>')
+                    .append('<span class=details-header>Duration:</span>')
+                    .append(this.$durationDisplay = $('<span class=col-x>'))
+                    .append(this.$duration)
+                );
+            this.$.click(e => e.stopPropagation());
+            $('#close-details').click(e => {
+                this.app.selectEntry(null);
+                e.stopPropagation();
+            });
+        }
+        updateTimeInput() {
+            const minTime = this.entry.minTime();
+            const maxTime = this.entry.maxTime();
+            this.$time
+                .attr('min', minTime)
+                .attr('max', maxTime)
+                .attr('step', maxTime - minTime < 1200000 ? 1000 : 60000)
+                .val(this.entry.time)
+        }
+        updateDurationInput() {
+            const maxDuration = this.entry.duration + this.entry.later.duration;
+            this.$duration
+                .attr('max', maxDuration)
+                .attr('step', maxDuration < 1200000 ? 1000 : 60000)
+                .val(this.entry.duration)
+        }
+        update() {
+            if (!this.entry) return this.$.hide();
+            this.$.show();
+            this.$activity.html('').append(
+                this.entry.activity.path().map(e => $('<span class=path>').text(e.name))
+            );
+            this.$timeDisplay.text(this.entry.timeText());
+            this.$durationDisplay.text(this.entry.durationText());
+        }
+    }
+
+    class App {
+        constructor() {
+            this.activityStorage = new StorageKey('activities');
+            this.activityStorage.value ||= [
+                ['Personal Organisation', []]
+            ];
+            this.activities = new ActivityList(this, this, $('#activities'), this.activityStorage.value);
+            this.entryStorage = new StorageKey('entries');
+            this.entries = new ListComponent(this, {
+                element: $('#entries'),
+                onremove: e => { this.update(); this.save(); }
+            });
+            if (this.entryStorage.value) {
+                this.entryStorage.value.forEach(e => {
+                    const [id, time] = e;
+                    const activity = this.activities.find(id) || '' + id; 
+                    this.entries.insert(new Entry(this, activity, time));
+                })
+            }
+            this.entries.oninsert = e => {
+                this.update();
+                this.save();
+            }
+            if (!this.entries.length) this.start(this.activities[0]);
+            this.details = new EntryDetails(this);
+            this.update();
+            $('#add-activity').click(e => {
+                this.activities.insert(this.newActivity(''), { focus: true });
+                e.stopPropagation();
+            });
+            $('#add-entry').click(e => {
+                const activity = this.newActivity('');
+                this.activities.insert(activity, { focus: true });
+                const entry = new Entry(this, activity);
+                this.entries.insert(entry);
+                this.selectEntry(entry);
+                this.update();
+                this.save();
+                e.stopPropagation();
+            });
+            $('body').keydown(e => {
+                if (e.code == 'Backspace' && this.selectedEntry) {
+                    this.entries.remove(this.selectedEntry);
+                }
+            });
+        }
+        update() {
+            if (this.entries.length) {
+                this.activeEntry = this.entries[this.entries.length - 1];
+                this.entries[this.entries.length - 1].later = null;
+                this.entries[0].earlier = null;
+            }
+            else this.activeEntry = null;
+            for (var i = 1; i <= this.entries.length; i++) {
+                if (i < this.entries.length) this.entries[i - 1].noticeFollowedBy(this.entries[i]);
+            }
+            this.entries.forEach(e => e.update());
+            if (this.selectedEntry && this.selectedEntry.container == null) {
+                this.selectEntry(null);
+            }
+            this.activities.update();
+            this.details.update();
+        }
+        start(activity) {
+            const entry = new Entry(this, activity);
+            this.entries.insert(entry);
+            this.update();
+            this.selectEntry(entry);
+        }
+        getPath() {
+            return '';
+        }
+        descendsFrom(activity) {
+            return false;
+        }
+        newActivity(name, items, id) {
+            return new Activity(this, name, items, id);
+        }
+        save() {
+            var id = 0;
+            const newid = () => id++;
+            this.activityStorage.value = this.activities.snapshot(newid);
+            this.entryStorage.value = this.entries.snapshot();
+        }
+        selectEntry(entry) {
+            this.selectedEntry = entry;
+            this.details = new EntryDetails(this, entry);
+            this.update();
+        }
+        selectActivity(activity) {
+            if (this.selectedEntry) {
+                this.selectedEntry.activity = activity;
+                this.update();
+                this.save();
+            }
+        }
+    }
+
+    $(function () {
+        const app = new App();
+    })
+
+</script>
+</body>
+</html>
