@@ -129,11 +129,11 @@
             this.app = app;
             this.container = container;
             this.$ = element;
-            items ||= [];
+            items = items || [];
             items.forEach(e => this.insert(app.newActivity(...e)));
         }
         insert(movedActivity, options) {
-            options ||= {};
+            options = options || {};
             const position = this.indexOf(options.after) + 1;
             if (position === 0) {
                 this.$.append(movedActivity.$);
@@ -147,7 +147,7 @@
             if (options.focus) movedActivity.$text.focus();
         }
         insert(item, options) {
-            options ||= {};
+            options = options || {};
             const position = this.indexOf(options.after) + 1;
             if (position === 0) {
                 this.$.append(item.$);
@@ -325,7 +325,7 @@
     class ListComponent extends Array {
         constructor(container, options) {
             super();
-            options ||= {};
+            options = options || {};
             this.container = container;
             this.$ = options.element || $('<div>');
             this.onremove = options.onremove;
@@ -333,7 +333,7 @@
             this.oninsert = options.oninsert;
         }
         insert(item, options) {
-            options ||= {};
+            options = options || {};
             const position = this.indexOf(options.after) + 1;
             if (position === 0) {
                 this.$.append(item.$);
@@ -534,7 +534,7 @@
     class App {
         constructor() {
             this.activityStorage = new StorageKey('activities');
-            this.activityStorage.value ||= [
+            this.activityStorage.value = this.activityStorage.value || [
                 ['Personal Organisation', []]
             ];
             this.activities = new ActivityList(this, this, $('#activities'), this.activityStorage.value);
