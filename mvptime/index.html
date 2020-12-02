@@ -61,9 +61,8 @@
         }
         .active {
             background-color: rgba(40, 210, 255, 0.2);
-            box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
         }
-        .selected {
+        .selected, .active {
             box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
         }
         .path:not(:last-child):after {
@@ -103,22 +102,22 @@
     <div class=card>
         <div class='card-header'>
             Activities
-            <button id=add-activity class='btn-x float-right' tabindex='-1'>✳️</button>
+            <button id=add-activity class='btn-x float-right' tabindex='-1' title='Add a new activity'>✳️</button>
         </div>
         <div id=activities class=card-body></div>
     </div>
     <div class=card>
         <div class='card-header'>
             Entries
-            <button id=clear-entries class='btn-x float-right' tabindex='-1'>♻️</button>
-            <button id=add-entry class='btn-x float-right' tabindex='-1'>⏱</button>
+            <button id=clear-entries class='btn-x float-right' tabindex='-1' title='Delete all entries'>♻️</button>
+            <button id=add-entry class='btn-x float-right' tabindex='-1' title='Start a new activity'>⏱</button>
         </div>
         <div id=entries class=card-body></div>
     </div>
     <div id=details class=card>
         <div class='card-header'>
             Entry Details
-            <button id=close-details class='btn-x float-right' tabindex='-1'>✖️</button>
+            <button id=close-details class='btn-x float-right' tabindex='-1' title='Close and deselect this entry'>✖️</button>
         </div>
         <div id=details-body class=card-body></div>
     </div>
@@ -223,6 +222,7 @@
                     e.stopPropagation();
                 });
             this.$radio = $('<input type=radio class=btn-x tabindex="-1">')
+                .attr('title', 'Change the activity assigned to the selected entry')
                 .click(e => {
                     this.app.selectActivity(this);
                     e.stopPropagation();
@@ -233,12 +233,14 @@
                     .append(this.$radio)
                     .append(this.$time = $('<span class="col-x text-center">'))
                     .append($('<button class=btn-x tabindex="-1">⏱</>')
+                        .attr('title', 'Start this activity')
                         .click(e => {
                             this.app.start(this);
                             e.stopPropagation();
                         })
                     )
                     .append($('<button class=btn-x tabindex="-1">✳️</>')
+                        .attr('title', 'Add a subordinate activity')
                         .click(e => {
                             this.list.insert(this.app.newActivity(), {
                                 focus: true
@@ -248,6 +250,7 @@
                         })
                     )
                     .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                        .attr('title', 'Delete this activity')
                         .click(e => {
                             this.remove();
                             this.app.save();
@@ -383,6 +386,7 @@
                 .append(this.$started = $('<span class="col-x text-center">'))
                 .append($('<span class="col-x text-right">')
                     .append(this.$insert = $('<button class=btn-x tabindex="-1">✳</>')
+                        .attr('title', 'Add to activity tree')
                         .click(e => {
                             this.app.activities.insert(this.activity, { focus: true });
                             this.app.selectEntry(this);
@@ -390,6 +394,7 @@
                         })
                     )
                     .append($('<button class=btn-x tabindex="-1">➗</>')
+                        .attr('title', 'Insert an entry after this one')
                         .click(e => {
                             const time = this.later ? this.later.time : Date.now();
                             const entry = new Entry(this.app, this.activity, time);
@@ -399,6 +404,7 @@
                         })
                     )
                     .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                        .attr('title', 'Delete this entry')
                         .click(e => {
                             this.container.remove(this);
                             e.stopPropagation();
@@ -421,6 +427,7 @@
         }
         get duration() {
             if (this.later) return this.later.time - this.time;
+            return Date.now() - this.time;
         }
         noticeFollowedBy(entry) {
             this.later = entry;
@@ -440,16 +447,16 @@
         }
         minTime() {
             if (this.earlier) return this.earlier.time;
-            if (this.later) return this.time - this.duration;
+            if (this.later && this.duration) return this.time - this.duration;
             return this.time - 3600000;
         }
         maxTime() {
             if (this.later) return this.later.time;
             if (this.earlier) return this.time + this.earlier.duration;
-            return this.time + 3600000;
+            return Math.min(this.time + 3600000, Date.now());
         }
     }
-    
+
     class StorageKey {
         constructor(key, initial) {
             this.key = key;
