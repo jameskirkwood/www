@@ -133,6 +133,20 @@
             items = items || [];
             items.forEach(e => this.insert(app.newActivity(...e)));
         }
+        insert(movedActivity, options) {
+            options = options || {};
+            const position = this.indexOf(options.after) + 1;
+            if (position === 0) {
+                this.$.append(movedActivity.$);
+                this[this.length] = movedActivity;
+            }
+            else {
+                this[position - 1].$.after(movedActivity.$);
+                this.splice(position, 0, movedActivity);
+            }
+            movedActivity.container = this;
+            if (options.focus) movedActivity.$text.focus();
+        }
         insert(item, options) {
             options = options || {};
             const position = this.indexOf(options.after) + 1;
@@ -161,9 +175,6 @@
             return this.map(e => e.snapshot(newid));
         }
         update() {
-            this.sort(function(a, b) { return a.position - b.position });
-            this.$.children().detach();
-            this.forEach(e => this.$.append(e.$));
             this.forEach(e => e.update());
         }
         find(id) {
@@ -193,8 +204,6 @@
                 .attr('placeholder', 'Activity Name')
                 .val(name)
                 .on('input', () => this.nameChanged())
-                .focus(e => this.focused = true)
-                .blur(e => this.focused = false)
                 .keydown(e => {
                     if (e.code == 'Enter') {
                         const activity = this.app.newActivity();
@@ -254,9 +263,6 @@
         get name() {
             return this.$text.val();
         }
-        get position() {
-            return parseFloat(this.name) || 0;
-        }
         nameChanged() {
             this.app.update();
             this.app.save();
@@ -302,7 +308,6 @@
             else {
                 this.$radio.hide();
             }
-            if (this.focused) this.$text.focus();
             this.list.update();
         }
         find(id) {
