@@ -1,0 +1,225 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+svg {
+    vertical-align: middle;
+}
+body {
+    min-height: 100vh;
+    max-height: 100vh;
+    max-width: 100vw;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+}
+
+/** nav -- navigation bar
+/*********************************************************************************************/
+
+nav {
+    border-bottom: 2px solid rgb(40, 210, 255);
+    background-color: #515864;
+    padding: .5rem 1rem;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+nav a {
+    color: rgba(255,255,255,.5) !important;
+}
+nav .nav-brand {
+    color: #fff !important;
+    font-size: 1.25rem;
+    text-decoration: none;
+}
+
+/** .mvp-column -- columnar layout
+/*********************************************************************************************/
+
+.mvp-column-container {
+    display: flex;
+    min-height: 0;
+    flex-grow: 1;
+    flex-basis: 0%;
+    overflow-y: hidden;
+}
+.mvp-column-container > * {
+    max-height: 100%;
+}
+.mvp-column:not(:first-child) {
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+    flex-grow: 1;
+}
+.mvp-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex-basis: 0;
+}
+.mvp-column > * {
+    flex-grow: 1;
+    height: 0;
+    overflow-y: hidden;
+}
+.mvp-column-divider {
+    border: none;
+    flex: 0 0 0.5em;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: col-resize;
+}
+.mvp-column-divider:hover{
+    background-color: rgba(0, 0, 0, 0.075);
+}
+.mvp-column-divider.dragging {
+    background-color: transparent;
+}
+
+/** .mvp-panel -- panel layout
+/*********************************************************************************************/
+
+.mvp-panel {
+    display: flex;
+    flex-direction: column;
+}
+.mvp-panel:not(:first-of-type) {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+.mvp-panel-header {
+    user-select: none;
+	padding: .5rem 1rem .4rem 1rem;
+	background-color: rgba(0,0,0,.03);
+	border-bottom: 1px solid rgba(0,0,0,.125);
+}
+.mvp-panel-body {
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+.mvp-panel-content {
+    padding: 1rem;
+}
+#details {
+    height: auto;
+    flex-grow: 0;
+}
+
+/** activity tree
+/*********************************************************************************************/
+
+.activity, .entry {
+    border-radius: 4pt;
+    user-select: none;
+}
+.activity-head > input {
+    border-radius: 2pt;
+}
+.activity-head {
+    display: flex;
+    padding: 2pt;
+    border-radius: 4pt;
+}
+.activity-head:hover, .entry:hover {
+    background-color: rgba(40, 210, 255, 0.1);
+}
+.activity-text {
+    flex-grow: 1;
+    border: none;
+    min-width: 0;
+}
+.activity-body {
+    margin-left: 1em;
+}
+
+/** entry list
+/*********************************************************************************************/
+
+.entry {
+    display: flex;
+    padding: 3pt;
+    border-radius: 4pt;
+    cursor: pointer;
+}
+
+/** misc
+/*********************************************************************************************/
+
+.mvp-btn {
+    border-radius: 1em;
+    border: none;
+    font-weight: bold;
+    background: none;
+    color: grey;
+    cursor: pointer;
+}
+.btn-x:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+}
+.mvp-col {
+    width: 7.5em;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.col-x.narrower {
+    width: 5em;
+}
+.invalid {
+    color: red;
+}
+.active {
+    background-color: rgba(40, 210, 255, 0.2);
+}
+.selected, .active {
+    box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
+}
+.path:not(:last-child):after {
+    content: ' » ';
+    color: #aaa;
+}
+.details-header {
+    font-weight: bold;
+    display: inline-block;
+    width: 6em;
+}
+input {
+    border: none;
+}
+input:not(:focus) {
+    background: none;
+}
+.float-right {
+    float: right !important;
+}
+.d-flex {
+	display: flex !important;
+}
+.flex-grow-1 {
+    flex-grow: 1 !important;
+}
+button, input, optgroup, select, textarea {
+	margin: 0;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}
+.text-center {
+	text-align: center !important;
+}
+.text-right {
+	text-align: right !important;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}

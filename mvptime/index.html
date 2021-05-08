@@ -2,205 +2,66 @@
 <html>
 <head>
     <title>MVPtime Alpha</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-    <style>
-        body {
-            min-height: 100vh;
-            max-height: 100vh;
-            max-width: 100vw;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        main {
-            display: flex;
-            min-height: 0;
-            flex-grow: 1;
-            flex-basis: 0%;
-            overflow-y: hidden;
-        }
-        main > * {
-            max-height: 100%;
-        }
-        .column:not(:first-child) {
-            border-left: 1px solid rgba(0, 0, 0, 0.12);
-            flex-grow: 1;
-        }
-        .column {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            flex-basis: 0;
-        }
-        .column > * {
-            flex-grow: 1;
-            height: 0;
-            overflow-y: hidden;
-        }
-        .column-divider {
-            border: none;
-            flex: 0 0 0.5em;
-            border-left: 1px solid rgba(0, 0, 0, 0.12);
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-        .column-divider.dragging {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-        .x-card {
-            display: flex;
-            flex-direction: column;
-        }
-        .x-card:not(:first-of-type) {
-            border-top: 1px solid rgba(0, 0, 0, 0.12);
-        }
-        .card-header {
-            user-select: none;
-        }
-        .card-body {
-            overflow-y: auto;
-            flex-grow: 1;
-        }
-        #details {
-            height: auto;
-            flex-grow: 0;
-        }
-        .navbar {
-            border-bottom: 2px solid rgb(40, 210, 255);
-        }
-        .container-x {
-            padding: 0 !important;
-        }
-        .activity, .entry {
-            border-radius: 4pt;
-            user-select: none;
-        }
-        .activity-head > input {
-            border-radius: 2pt;
-        }
-        .activity-head {
-            display: flex;
-            padding: 2pt;
-            border-radius: 4pt;
-        }
-        .activity-head:hover, .entry:hover {
-            background-color: rgba(40, 210, 255, 0.1);
-        }
-        .activity-text {
-            flex-grow: 1;
-            border: none;
-            min-width: 0;
-        }
-        .activity-body {
-            margin-left: 1em;
-        }
-        .entry {
-            display: flex;
-            padding: 3pt;
-            border-radius: 4pt;
-        }
-        .btn-x {
-            border-radius: 1em;
-            border: none;
-            font-weight: bold;
-            background: none;
-            color: grey;
-        }
-        .btn-x:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-            color: black;
-        }
-        .col-x {
-            width: 7.5em;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-        .col-x.narrower {
-            width: 5em;
-        }
-        .invalid {
-            color: red;
-        }
-        .active {
-            background-color: rgba(40, 210, 255, 0.2);
-        }
-        .selected, .active {
-            box-shadow: inset 0px 0px 0px 1px rgb(40, 210, 255);
-        }
-        .path:not(:last-child):after {
-            content: ' » ';
-            color: #aaa;
-        }
-        .details-header {
-            font-weight: bold;
-            display: inline-block;
-            width: 6em;
-        }
-        input {
-            border: none;
-        }
-        input:not(:focus) {
-            background: none;
-        }
-    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-secondary navbar-dark">
-    <div class='container-fluid container-x'>
-        <a class="navbar-brand" href="#">
-            <svg width="1.5em" height="1.5em" version="1.1" viewBox="0 0 24.87 24.74" xmlns="http://www.w3.org/2000/svg">
-                <g transform="translate(-64.34 -101.3)">
-                    <path transform="scale(.2646)" d="m244 423a46.9 46.9 0 0 0-0.459 6.549 46.9 46.9 0 0 0 46.9 46.9 46.9 46.9 0 0 0 46.72-42.85z" fill="#fb0000"/>
-                    <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 4.494 9.557l15.76-19.17a12.41 12.41 0 0 0-7.85-2.799z" fill="#fbee00"/>
-                    <path d="m76.75 101.3a12.41 12.41 0 0 0-5.536 1.303l12.04 21.67a12.41 12.41 0 0 0 5.901-10.57 12.41 12.41 0 0 0-12.41-12.41z" fill="#5200ff"/>
-                    <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 0.4852 3.437l23.78-7.096a12.41 12.41 0 0 0-11.86-8.749z" fill="#0fe300"/>
-                </g>
-            </svg>
-            MVP<em>time</em>
-        </a>
-        <ul class=navbar-nav>
-            <li class=nav-item>
-                <a href="v1" class=nav-link>back to the old version</a>
-            </li>
-        </ul>
-    </div>
+<nav>
+    <a class=nav-brand href=#>
+        <svg width="1.5em" height="1.5em" version="1.1" viewBox="0 0 24.87 24.74" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(-64.34 -101.3)">
+                <path transform="scale(.2646)" d="m244 423a46.9 46.9 0 0 0-0.459 6.549 46.9 46.9 0 0 0 46.9 46.9 46.9 46.9 0 0 0 46.72-42.85z" fill="#fb0000"/>
+                <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 4.494 9.557l15.76-19.17a12.41 12.41 0 0 0-7.85-2.799z" fill="#fbee00"/>
+                <path d="m76.75 101.3a12.41 12.41 0 0 0-5.536 1.303l12.04 21.67a12.41 12.41 0 0 0 5.901-10.57 12.41 12.41 0 0 0-12.41-12.41z" fill="#5200ff"/>
+                <path d="m76.75 101.3a12.41 12.41 0 0 0-12.41 12.41 12.41 12.41 0 0 0 0.4852 3.437l23.78-7.096a12.41 12.41 0 0 0-11.86-8.749z" fill="#0fe300"/>
+            </g>
+        </svg>
+        MVP<em>time</em>
+    </a>
+    <a href=v1>back to the old version</a>
 </nav>
-<main>
-    <div class=column style='flex-basis: 50%'>
-        <div class=x-card>
-            <div class='card-header'>
+<main class=mvp-column-container>
+    <div class=mvp-column style='flex-basis: 50%'>
+        <div class=mvp-panel>
+            <div class=mvp-panel-header>
                 Activities
-                <button id=add-activity class='btn-x float-right' tabindex='-1' title='Add a new activity'>✳️</button>
+                <button id=add-activity class='mvp-btn float-right' tabindex='-1' title='Add a new activity'>✳️</button>
             </div>
-            <div id=activities class=card-body></div>
+            <div class=mvp-panel-body>
+                <div id=activities class=mvp-panel-content></div>
+            </div>
         </div>
     </div>
-    <div class=column-divider></div>
-    <div class=column>
-        <div class=x-card>
-            <div class='card-header'>
+    <div class=mvp-column-divider></div>
+    <div class=mvp-column>
+        <div class=mvp-panel>
+            <div class=mvp-panel-header>
                 Entries
-                <button id=clear-entries class='btn-x float-right' tabindex='-1' title='Delete all entries'>♻️</button>
-                <button id=add-entry class='btn-x float-right' tabindex='-1' title='Start a new activity'>⏱</button>
+                <button id=clear-entries class='mvp-btn float-right' tabindex='-1' title='Delete all entries'>♻️</button>
+                <button id=add-entry class='mvp-btn float-right' tabindex='-1' title='Start a new activity'>⏱</button>
             </div>
-            <div id=entries class=card-body></div>
+            <div class=mvp-panel-body>
+                <div id=entries class=mvp-panel-content></div>
+            </div>
         </div>
-        <div id=details class=x-card>
-            <div class='card-header'>
+        <div id=details class=mvp-panel>
+            <div class=mvp-panel-header>
                 Entry Details
-                <button id=close-details class='btn-x float-right' tabindex='-1' title='Close and deselect this entry'>✖️</button>
+                <button id=close-details class='mvp-btn float-right' tabindex='-1' title='Close and deselect this entry'>✖️</button>
             </div>
-            <div id=details-body class=card-body></div>
+            <div class=mvp-panel-body>
+                <div id=details-body class=mvp-panel-content></div>
+            </div>
         </div>
     </div>
 </main>
 <script>
 
-    $('.column-divider').mousedown(e => {
+    $('.mvp-column-divider').mousedown(e => {
         e.preventDefault();
         column = e.target.previousElementSibling;
         function move(e) {
-          column.style.flexBasis = e.clientX + "px";
+          column.style.flexBasis = `calc(${e.clientX}px - 0.25em)`;
         }
         function up() {
           document.body.removeEventListener('mouseup', up);
@@ -301,7 +162,7 @@
                     }
                     e.stopPropagation();
                 });
-            this.$radio = $('<input type=radio class=btn-x tabindex="-1">')
+            this.$radio = $('<input type=radio class=mvp-btn tabindex="-1">')
                 .attr('title', 'Change the activity assigned to the selected entry')
                 .click(e => {
                     this.app.selectActivity(this);
@@ -311,15 +172,15 @@
                 .append($('<div class=activity-head>')
                     .append(this.$text)
                     .append(this.$radio)
-                    .append(this.$time = $('<span class="col-x narrower text-center">'))
-                    .append($('<button class=btn-x tabindex="-1">⏱</>')
+                    .append(this.$time = $('<span class="mvp-col narrower text-center">'))
+                    .append($('<button class=mvp-btn tabindex="-1">⏱</>')
                         .attr('title', 'Start this activity')
                         .click(e => {
                             this.app.start(this);
                             e.stopPropagation();
                         })
                     )
-                    .append($('<button class=btn-x tabindex="-1">✳️</>')
+                    .append($('<button class=mvp-btn tabindex="-1">✳️</>')
                         .attr('title', 'Add a subordinate activity')
                         .click(e => {
                             this.list.insert(this.app.newActivity(), {
@@ -329,7 +190,7 @@
                             e.stopPropagation();
                         })
                     )
-                    .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                    .append($('<button class=mvp-btn tabindex="-1">🗑️</>')
                         .attr('title', 'Delete this activity')
                         .click(e => {
                             this.remove();
@@ -467,9 +328,9 @@
             this.$ = $('<div class=entry>')
                 .append(this.$activity = $('<span class=flex-grow-1>'))
                 .append(this.$duration = $('<span>'))
-                .append(this.$started = $('<span class="col-x text-center">'))
-                .append($('<span class="col-x text-right">')
-                    .append(this.$insert = $('<button class=btn-x tabindex="-1">✳</>')
+                .append(this.$started = $('<span class="mvp-col text-center">'))
+                .append($('<span class="mvp-col text-right">')
+                    .append(this.$insert = $('<button class=mvp-btn tabindex="-1">✳</>')
                         .attr('title', 'Add to activity tree')
                         .click(e => {
                             this.app.activities.insert(this.activity, { focus: true });
@@ -477,7 +338,7 @@
                             e.stopPropagation();
                         })
                     )
-                    .append($('<button class=btn-x tabindex="-1">➗</>')
+                    .append($('<button class=mvp-btn tabindex="-1">➗</>')
                         .attr('title', 'Insert an entry after this one')
                         .click(e => {
                             const time = this.later ? this.later.time : Date.now();
@@ -487,7 +348,7 @@
                             e.stopPropagation();
                         })
                     )
-                    .append($('<button class=btn-x tabindex="-1">🗑️</>')
+                    .append($('<button class=mvp-btn tabindex="-1">🗑️</>')
                         .attr('title', 'Delete this entry')
                         .click(e => {
                             this.container.remove(this);
@@ -591,12 +452,12 @@
                 )
                 .append($('<div class=d-flex>')
                     .append('<span class=details-header>Started:</span>')
-                    .append(this.$timeDisplay = $('<span class=col-x>'))
+                    .append(this.$timeDisplay = $('<span class=mvp-col>'))
                     .append(this.$time)
                 )
                 .append($('<div class=d-flex>')
                     .append('<span class=details-header>Duration:</span>')
-                    .append(this.$durationDisplay = $('<span class=col-x>'))
+                    .append(this.$durationDisplay = $('<span class=mvp-col>'))
                     .append(this.$duration)
                 );
             this.$.click(e => e.stopPropagation());
